@@ -1,4 +1,4 @@
-# secure-pet-charity-blog
+# Secure Pet Charity Blog
 
 This project is a secure web blog developed using Node.js and PostgreSQL. 
 It allows users to register, log in, and create blog posts while implementing 
