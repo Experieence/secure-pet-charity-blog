@@ -1,5 +1,34 @@
 {
   "devDependencies": {
-    "express": "^4.21.1"
+    "express": "^4.22.1"
+  },
+  "name": "secure-pet-charity-blog",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Experieence/secure-pet-charity-blog.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Experieence/secure-pet-charity-blog/issues"
+  },
+  "homepage": "https://github.com/Experieence/secure-pet-charity-blog#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "pg": "^8.20.0"
   }
 }
