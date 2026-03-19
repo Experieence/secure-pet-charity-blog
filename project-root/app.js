@@ -5,7 +5,22 @@ const port = 3000;
 var bodyParser = require('body-parser');
 const fs = require('fs');
 
-app.use(express.static(__dirname + '/public'));
+const { Pool } = require("pg");
+const dotenv = require("dotenv");
+require('dotenv').config({ path: __dirname + '/.env' });
+console.log("DB PASSWORD:", process.env.DB_PASSWORD);
+console.log("DB NAME:", process.env.DB_NAME);
+
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+});
+
+
+app.use(express.static(__dirname + '/app/public'));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -13,7 +28,7 @@ app.use(bodyParser.json());
 // Landing page
 app.get('/', (req, res) => {
     /// send the static file
-    res.sendFile(__dirname + '/public/html/login.html', (err) => {
+    res.sendFile(__dirname + '/app/public/html/login.html', (err) => {
         if (err){
             console.log(err);
         }
@@ -23,7 +38,7 @@ app.get('/', (req, res) => {
 // Reset login_attempt.json when server restarts
 let login_attempt = {"username" : "null", "password" : "null"};
 let data = JSON.stringify(login_attempt);
-fs.writeFileSync(__dirname + '/public/json/login_attempt.json', data);
+fs.writeFileSync(__dirname + '/app/public/json/login_attempt.json', data);
 
 // Store who is currently logged in
 let currentUser = null;
@@ -37,6 +52,8 @@ app.post('/', async function(req, res) {
   // 2. Get password from form  
   var password = req.body.password_input;
 
+  console.log("Username:", username);
+  console.log("Password:", password);
   // 3. Check database
   const result = await pool.query(
     'SELECT * FROM login_users WHERE username = $1 AND password = $2',
@@ -45,15 +62,20 @@ app.post('/', async function(req, res) {
 
   // 4. If user found
   if(result.rows.length > 0) {
-    res.sendFile(__dirname + '/public/html/index.html');
+    currentUser = username; 
+    let login_attempt = {"username": username, "password": password};
+    fs.writeFileSync(__dirname + '/app/public/json/login_attempt.json', JSON.stringify(login_attempt));
+    res.sendFile(__dirname + '/app/public/html/index.html');
   } else {
     // 5. Send back to login
-    res.sendFile(__dirname + '/public/html/login.html');
+    let login_attempt = {"username": username, "password": password};
+    fs.writeFileSync(__dirname + '/app/public/json/login_attempt.json', JSON.stringify(login_attempt)) 
+    res.sendFile(__dirname + '/app/public/html/login.html');
   }
   // your database query and if/else goes here
 } catch(err) {
   console.log(err);
-  res.sendFile(__dirname + '/public/html/login.html');
+  res.sendFile(__dirname + '/app/public/html/login.html');
 }
 });
 
@@ -61,7 +83,7 @@ app.post('/', async function(req, res) {
 app.post('/makepost', function(req, res) {
 
     // Read in current posts
-    const json = fs.readFileSync(__dirname + '/public/json/posts.json');
+    const json = fs.readFileSync(__dirname + '/app/public/json/posts.json');
     var posts = JSON.parse(json);
 
     // Get the current date
@@ -93,17 +115,17 @@ app.post('/makepost', function(req, res) {
     // Add post to posts.json
     posts.push({"username": currentUser , "timestamp": curDate, "postId": newId, "title": req.body.title_field, "content": req.body.content_field});
 
-    fs.writeFileSync(__dirname + '/public/json/posts.json', JSON.stringify(posts));
+    fs.writeFileSync(__dirname + '/app/public/json/posts.json', JSON.stringify(posts));
 
     // Redirect back to my_posts.html
-    res.sendFile(__dirname + "/public/html/my_posts.html");
+    res.sendFile(__dirname + '/app/public/html/my_posts.html');
  });
 
  // Delete a post POST request
  app.post('/deletepost', (req, res) => {
 
     // Read in current posts
-    const json = fs.readFileSync(__dirname + '/public/json/posts.json');
+    const json = fs.readFileSync(__dirname + '/app/public/json/posts.json');
     var posts = JSON.parse(json);
 
     // Find post with matching ID and delete it
@@ -111,9 +133,9 @@ app.post('/makepost', function(req, res) {
     posts.splice(index, 1);
 
     // Update posts.json
-    fs.writeFileSync(__dirname + '/public/json/posts.json', JSON.stringify(posts));
+    fs.writeFileSync(__dirname + '/app/public/json/posts.json', JSON.stringify(posts));
 
-    res.sendFile(__dirname + "/public/html/my_posts.html");
+    res.sendFile(__dirname + '/app/public/html/my_posts.html');
  });
 
 app.listen(port, () => {

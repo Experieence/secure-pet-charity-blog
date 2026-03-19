@@ -22,7 +22,7 @@ const pool = new Pool({
 // create a route and will print out all the values in the users data 
 app.get("/api/users", async(req, res) =>{
     try{
-        const result = await pool.query("SELECT * FROM users"); 
+        const result = await pool.query("SELECT * FROM login_users WHERE username = $1 AND password = $2"); 
         res.json(result.rows);
     } catch (err){
         res.status(500).json({error: err.message})

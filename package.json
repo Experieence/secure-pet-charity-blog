@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/Experieence/secure-pet-charity-blog#readme",
   "dependencies": {
+    "body-parser": "^2.2.2",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "pg": "^8.20.0"
