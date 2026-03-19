@@ -25,7 +25,7 @@ async function checkLoginAttempts() {
 
         let error_msg = document.createElement("p");
         error_msg.id = "login_error";
-        error_msg.textContent = "Incorrect details.";
+        error_msg.textContent = "Invalid Login details.";
         error_msg.classList.add("error");
         document.querySelector("#login_btn").parentNode.insertBefore(error_msg, document.querySelector("#login_btn"));
 
@@ -37,7 +37,7 @@ async function checkLoginAttempts() {
 
         let error_msg = document.createElement("p");
         error_msg.id = "login_error";
-        error_msg.textContent = "Incorrect details.";
+        error_msg.textContent = "Invalid Login details.";
         error_msg.classList.add("error");
         document.querySelector("#login_btn").parentNode.insertBefore(error_msg, document.querySelector("#login_btn"));
 
