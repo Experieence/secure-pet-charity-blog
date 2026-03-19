@@ -29,61 +29,32 @@ fs.writeFileSync(__dirname + '/public/json/login_attempt.json', data);
 let currentUser = null;
 
 // Login POST request
-app.post('/',function(req, res){
+app.post('/', async function(req, res) {
+  try {
+      // 1. Get username from form
+  var username = req.body.username_input;
 
-    // Get username and password entered from user
-    var username = req.body.username_input;
-    var password = req.body.password_input;
+  // 2. Get password from form  
+  var password = req.body.password_input;
 
-    // Currently only "username" is a valid username
-    if(username !== "username") {
+  // 3. Check database
+  const result = await pool.query(
+    'SELECT * FROM login_users WHERE username = $1 AND password = $2',
+    [username, password]
+  );
 
-        // Update login_attempt with credentials used to log in
-        let login_attempt = {"username" : username, "password" : password};
-        let data = JSON.stringify(login_attempt);
-        fs.writeFileSync(__dirname + '/public/json/login_attempt.json', data);
-
-        // Redirect back to login page
-        res.sendFile(__dirname + '/public/html/login.html', (err) => {
-            if (err){
-                console.log(err);
-            }
-        });
-    }
-
-    // Currently only "password" is a valid password
-    if(password !== "password") {
-
-        // Update login_attempt with credentials used to log in
-        let login_attempt = {"username" : username, "password" : password};
-        let data = JSON.stringify(login_attempt);
-        fs.writeFileSync(__dirname + '/public/json/login_attempt.json', data);
-
-        // Redirect back to login page
-        res.sendFile(__dirname + '/public/html/login.html', (err) => {
-            if (err){
-                console.log(err);
-            }
-        });
-    }
-
-    // Valid username and password both entered together
-    if(username === "username" && password === "password") {
-        // Update login_attempt with credentials
-        let login_attempt = {"username" : username, "password" : password};
-        let data = JSON.stringify(login_attempt);
-        fs.writeFileSync(__dirname + '/public/json/login_attempt.json', data);
-
-        // Update current user upon successful login
-        currentUser = req.body.username_input;
-
-        // Redirect to home page
-        res.sendFile(__dirname + '/public/html/index.html', (err) => {
-            if (err){
-                console.log(err);
-            }
-        })
-    }
+  // 4. If user found
+  if(result.rows.length > 0) {
+    res.sendFile(__dirname + '/public/html/index.html');
+  } else {
+    // 5. Send back to login
+    res.sendFile(__dirname + '/public/html/login.html');
+  }
+  // your database query and if/else goes here
+} catch(err) {
+  console.log(err);
+  res.sendFile(__dirname + '/public/html/login.html');
+}
 });
 
 // Make a post POST request
